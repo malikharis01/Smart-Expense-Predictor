@@ -127,7 +127,7 @@ def predict_expense(request: PredictRequest):
 
     prediction = model.predict(input_data)[0]
 
-    # Generate Advice
+   
     advice = generate_advice(prediction, avg_food, avg_travel, avg_shopping, avg_bills)
 
     return {
