@@ -7,17 +7,16 @@ from typing import List
 
 app = FastAPI(title="Smart Expense AI API")
 
-# ====================== CORS (Required for Next.js) ======================
+
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ====================== INPUT MODEL ======================
+
 class MonthInput(BaseModel):
     month: int
     food: float
@@ -29,9 +28,7 @@ class MonthInput(BaseModel):
 class PredictRequest(BaseModel):
     months: List[MonthInput]
 
-# -------------------------------
-# LOAD DATASET & TRAIN MODEL
-# -------------------------------
+
 data = pd.read_csv("monthly_expenses.csv")
 X = data[['month', 'food', 'travel', 'shopping', 'bills', 'income']]
 y = data['total_expense']
@@ -40,15 +37,12 @@ model = LinearRegression()
 model.fit(X, y)
 print("✅ Model trained successfully!")
 
-# -------------------------------
-# AI ADVICE FUNCTION
-# -------------------------------
+
 def generate_advice(prediction, avg_food, avg_travel, avg_shopping, avg_bills):
     advice = []
     total = prediction
 
     advice.append(f"📊 Your estimated next month expense is Rs {round(total, 2)}.")
-
     food_pct = (avg_food / total) * 100
     travel_pct = (avg_travel / total) * 100
     shopping_pct = (avg_shopping / total) * 100
@@ -84,9 +78,7 @@ def generate_advice(prediction, avg_food, avg_travel, avg_shopping, avg_bills):
 
     return advice
 
-# -------------------------------
-# ROUTES
-# -------------------------------
+
 @app.get("/")
 def home():
     return {"message": "Smart Expense AI API is running ✅"}
@@ -101,13 +93,13 @@ def predict_expense(request: PredictRequest):
     bills_list = [m.bills for m in months]
     incomes = [m.income for m in months]
 
-    # Graph Data
+   
     graph_data = [
         {"month": f"Month {i+1}", "expense": foods[i] + travels[i] + shoppings[i] + bills_list[i]}
         for i in range(len(months))
     ]
 
-    # Averages
+ 
     avg_month = sum(m.month for m in months) / len(months)
     avg_food = sum(foods) / len(foods)
     avg_travel = sum(travels) / len(travels)
@@ -115,7 +107,7 @@ def predict_expense(request: PredictRequest):
     avg_bills = sum(bills_list) / len(bills_list)
     avg_income = sum(incomes) / len(incomes)
 
-    # Prediction
+    
     input_data = pd.DataFrame([{
         'month': avg_month,
         'food': avg_food,
