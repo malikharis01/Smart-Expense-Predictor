@@ -7,7 +7,7 @@ data = []
 for i in range(1, 1001):
     month = (i % 12) + 1
 
-    # Generate realistic expenses
+    
     food = random.randint(3000, 6000)
     travel = random.randint(1500, 4000)
     shopping = random.randint(2000, 5000)

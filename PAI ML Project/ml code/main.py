@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 from typing import List
 
 app = FastAPI(title="Smart Expense AI API")
@@ -33,9 +34,14 @@ data = pd.read_csv("monthly_expenses.csv")
 X = data[['month', 'food', 'travel', 'shopping', 'bills', 'income']]
 y = data['total_expense']
 
+scaler = StandardScaler()
+
+X_scaled = scaler.fit_transform(X)
+
 model = LinearRegression()
-model.fit(X, y)
-print("✅ Model trained successfully!")
+model.fit(X_scaled, y)
+
+print("✅ Model trained with scaling!")
 
 
 def generate_advice(prediction, avg_food, avg_travel, avg_shopping, avg_bills):
@@ -117,7 +123,8 @@ def predict_expense(request: PredictRequest):
         'income': avg_income
     }])
 
-    prediction = model.predict(input_data)[0]
+    input_scaled = scaler.transform(input_data)
+    prediction = model.predict(input_scaled)[0]
 
    
     advice = generate_advice(prediction, avg_food, avg_travel, avg_shopping, avg_bills)
